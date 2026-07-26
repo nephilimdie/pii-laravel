@@ -1,0 +1,42 @@
+{
+  "name": "pii-protect/laravel",
+  "description": "Laravel service provider that integrates PII Protect anonymization into request/response lifecycle",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["laravel", "pii", "privacy", "middleware", "anonymization"],
+  "require": {
+    "php": ">=8.1",
+    "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+    "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
+    "guzzlehttp/guzzle": "^7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0|^11.0|^12.0",
+    "orchestra/testbench": "^8.0|^9.0|^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PiiProtect\\Laravel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PiiProtect\\Laravel\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "PiiProtect\\Laravel\\PiiProtectServiceProvider"
+      ],
+      "aliases": {
+        "PiiProtect": "PiiProtect\\Laravel\\Facades\\PiiProtect"
+      }
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
