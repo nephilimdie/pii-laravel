@@ -43,7 +43,8 @@ class SanitizeResponseMiddleware
         /** @var Response $response */
         $response = $next($request);
 
-        if (!str_contains($response->headers->get('Content-Type', ''), 'application/json')) {
+        $contentType = strtolower(trim(explode(';', $response->headers->get('Content-Type', ''))[0]));
+        if ($contentType !== 'application/json' && !str_ends_with($contentType, '+json')) {
             return $response;
         }
 
@@ -52,7 +53,14 @@ class SanitizeResponseMiddleware
             return $response;
         }
 
-        $decoded = json_decode($body, true, 512);
+        $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        // Scalar JSON strings must pass through the same protection boundary.
+        if (is_string($decoded)) {
+            $response->setContent(json_encode($this->client->anonymize($decoded), JSON_THROW_ON_ERROR));
+            $response->headers->remove('Content-Length');
+            $response->headers->remove('ETag');
+            return $response;
+        }
         if (!is_array($decoded)) {
             return $response;
         }
@@ -78,7 +86,9 @@ class SanitizeResponseMiddleware
 
         // sync — anonymize before sending to client
         $sanitized     = $this->client->anonymizeArray($decoded, $skip);
-        $sanitizedJson = json_encode($sanitized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $sanitizedJson = json_encode($sanitized, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $response->headers->remove('Content-Length');
+        $response->headers->remove('ETag');
 
         if ($response instanceof JsonResponse) {
             $response->setJson($sanitizedJson);

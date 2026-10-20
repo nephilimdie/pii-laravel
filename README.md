@@ -2,10 +2,13 @@
 
 Laravel service provider that runs PII Protect anonymization over the
 request/response lifecycle. Point it at a PII Protect engine (self-hosted or
-Pseudora Cloud) and personal data is stripped before it reaches your logs,
-your database, or a third-party API.
+Pseudora Cloud). Only configured request and JSON response fields are covered;
+this is not a filter for every log, database write or outbound API call.
 
 ## Install
+
+Not yet published on Packagist. The command below applies after publication;
+until then, use a Composer path repository for local evaluation only.
 
 ```bash
 composer require pii-protect/laravel
@@ -23,13 +26,15 @@ php artisan vendor:publish --tag=pii-protect-config
 ```dotenv
 PII_PROTECT_ENGINE_URL=https://pseudora.cloud
 PII_PROTECT_API_KEY=your-api-key
-PII_PROTECT_TIMEOUT_MS=500
+PII_PROTECT_TIMEOUT_MS=30000
 PII_DRIVER=sync
 ```
 
-`timeout_ms` is a hard deadline: if the engine does not answer in time the
-original text is returned unchanged, so anonymization never takes your
-application down.
+The timeout applies to each API request. Errors, malformed responses and any
+result without an explicit `safe: true` throw a generic exception. Never catch
+that exception by returning the original input. HTTPS is required except for
+loopback development URLs; redirects are disabled. Batch calls currently run
+sequentially and return no partial results if an item fails.
 
 ## Middleware
 
@@ -46,7 +51,8 @@ Route::post('/tickets', [TicketController::class, 'store'])
 ```
 
 Keys listed under `skip_fields` (passwords, tokens, `api_key`, `secret`, …) are
-never sent to the engine.
+never sent to the engine and remain unchanged in the request. Do not forward
+these excluded credentials to logs or external recipients.
 
 ## Response drivers
 
@@ -58,8 +64,12 @@ never sent to the engine.
 | `after_response` | The original body ships first; anonymization runs in the `terminating()` hook and fires `ResponseBodyAnonymized` for audit. |
 | `queue` | Same as `after_response` but through a queue worker, so it retries. Set `PII_QUEUE` to target a specific queue. |
 
-`pii.sanitize` is always synchronous — the request cannot proceed on
-un-anonymized input.
+`after_response` and `queue` are audit modes, not privacy boundaries: both
+release original data, and the queue also stores it. Use `sync` for response
+protection. Non-JSON responses are outside this middleware's scope.
+
+`pii.sanitize` is always synchronous and blocks on protection errors for
+processed fields. Field names, numeric values and excluded fields are unchanged.
 
 ## Direct use
 

@@ -28,10 +28,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Maximum time (in milliseconds) to wait for a response from the engine.
-    | On timeout the original text is returned — the application never breaks.
+    | Errors block processing; original text is never returned as a fallback.
     |
     */
-    'timeout_ms' => env('PII_PROTECT_TIMEOUT_MS', 500),
+    'timeout_ms' => env('PII_PROTECT_TIMEOUT_MS', 30000),
 
     /*
     |--------------------------------------------------------------------------

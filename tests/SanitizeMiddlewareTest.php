@@ -27,7 +27,7 @@ class SanitizeMiddlewareTest extends TestCase
 
     private function makeClient(array $anonymized): PiiProtectClient
     {
-        $mock = $this->createMock(PiiProtectClient::class);
+        $mock = $this->createStub(PiiProtectClient::class);
         $mock->method('anonymize')->willReturnCallback(fn($t) => $anonymized[$t] ?? $t);
         $mock->method('anonymizeBatch')->willReturnCallback(
             fn(array $texts) => array_map(fn($t) => $anonymized[$t] ?? $t, $texts)
@@ -99,7 +99,7 @@ class SanitizeMiddlewareTest extends TestCase
 
         $called = false;
         $client = $this->createMock(PiiProtectClient::class);
-        $client->method('anonymizeArray')->willReturnCallback(function ($d) use (&$called) {
+        $client->expects($this->once())->method('anonymizeArray')->willReturnCallback(function ($d) use (&$called) {
             $called = true;
             return $d;
         });

@@ -30,7 +30,7 @@ class PiiProtectServiceProvider extends ServiceProvider
             return new PiiProtectClient(
                 engineUrl: $cfg['engine_url'],
                 apiKey:    $cfg['api_key'] ?? '',
-                timeoutMs: (int) ($cfg['timeout_ms'] ?? 500),
+                timeoutMs: (int) ($cfg['timeout_ms'] ?? 30000),
             );
         });
 
