@@ -62,7 +62,7 @@ class PiiProtectServiceProvider extends ServiceProvider
         /** @var \Illuminate\Routing\Router $router */
         $router = $this->app['router'];
 
-        $router->aliasMiddleware('pii.sanitize',          SanitizeRequestMiddleware::class);
+        $router->aliasMiddleware('pii.sanitize', SanitizeRequestMiddleware::class);
         $router->aliasMiddleware('pii.sanitize.response', SanitizeResponseMiddleware::class);
     }
 

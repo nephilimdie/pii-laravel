@@ -14,12 +14,16 @@ use PiiProtect\Laravel\PiiProtectClient;
 
 class AnonymizeResponseBodyJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(
         private readonly array $data,
         private readonly array $skipKeys,
-    ) {}
+    ) {
+    }
 
     public function handle(PiiProtectClient $client): void
     {

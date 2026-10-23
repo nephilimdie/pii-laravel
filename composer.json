@@ -12,7 +12,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.0|^11.0|^12.0",
-    "orchestra/testbench": "^8.0|^9.0|^10.0"
+    "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+    "laravel/pint": "^1.13",
+    "phpstan/phpstan": "^2.1"
   },
   "autoload": {
     "psr-4": {
@@ -35,7 +37,9 @@
     }
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit",
+    "lint": "pint --test",
+    "analyse": "phpstan analyse --no-progress"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

@@ -6,7 +6,6 @@ namespace PiiProtect\Laravel\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use PiiProtect\Laravel\PiiProtectClient;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,7 +28,8 @@ class SanitizeRequestMiddleware
 {
     public function __construct(
         private readonly PiiProtectClient $client,
-    ) {}
+    ) {
+    }
 
     /**
      * Handle an incoming request.
