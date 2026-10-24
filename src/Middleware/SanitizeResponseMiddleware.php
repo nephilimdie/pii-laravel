@@ -36,7 +36,8 @@ class SanitizeResponseMiddleware
 {
     public function __construct(
         private readonly PiiProtectClient $client,
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request, Closure $next, string ...$skipKeys): Response
     {

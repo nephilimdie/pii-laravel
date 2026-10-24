@@ -8,5 +8,6 @@ class ResponseBodyAnonymized
 {
     public function __construct(
         public readonly array $data,
-    ) {}
+    ) {
+    }
 }

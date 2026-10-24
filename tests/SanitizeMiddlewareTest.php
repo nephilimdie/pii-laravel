@@ -28,9 +28,9 @@ class SanitizeMiddlewareTest extends TestCase
     private function makeClient(array $anonymized): PiiProtectClient
     {
         $mock = $this->createStub(PiiProtectClient::class);
-        $mock->method('anonymize')->willReturnCallback(fn($t) => $anonymized[$t] ?? $t);
+        $mock->method('anonymize')->willReturnCallback(fn ($t) => $anonymized[$t] ?? $t);
         $mock->method('anonymizeBatch')->willReturnCallback(
-            fn(array $texts) => array_map(fn($t) => $anonymized[$t] ?? $t, $texts)
+            fn (array $texts) => array_map(fn ($t) => $anonymized[$t] ?? $t, $texts)
         );
         $mock->method('anonymizeArray')->willReturnCallback(function (array $data) use ($anonymized): array {
             array_walk_recursive($data, function (&$v) use ($anonymized) {
@@ -106,7 +106,7 @@ class SanitizeMiddlewareTest extends TestCase
 
         $mw  = new SanitizeRequestMiddleware($client);
         $req = $this->jsonRequest('POST', ['field' => 'value']);
-        $mw->handle($req, fn($r) => response()->json([]));
+        $mw->handle($req, fn ($r) => response()->json([]));
 
         $this->assertTrue($called, 'Request middleware must call anonymizeArray synchronously');
         Queue::assertNothingPushed();
@@ -121,7 +121,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw     = new SanitizeResponseMiddleware($client);
         $req    = Request::create('/test', 'GET');
 
-        $resp = $mw->handle($req, fn() => $this->jsonResponse(['email' => 'mario@example.com']));
+        $resp = $mw->handle($req, fn () => $this->jsonResponse(['email' => 'mario@example.com']));
 
         $this->assertSame(['email' => '[EMAIL_1]'], json_decode($resp->getContent(), true));
     }
@@ -134,7 +134,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw  = new SanitizeResponseMiddleware($client);
         $req = Request::create('/test', 'GET');
 
-        $resp = $mw->handle($req, fn() => response('<html>ok</html>', 200, ['Content-Type' => 'text/html']));
+        $resp = $mw->handle($req, fn () => response('<html>ok</html>', 200, ['Content-Type' => 'text/html']));
 
         $this->assertStringContainsString('<html>', $resp->getContent());
     }
@@ -148,7 +148,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw     = new SanitizeResponseMiddleware($client);
         $req    = Request::create('/test', 'GET');
 
-        $resp = $mw->handle($req, fn() => $this->jsonResponse(['email' => 'mario@example.com']));
+        $resp = $mw->handle($req, fn () => $this->jsonResponse(['email' => 'mario@example.com']));
 
         // Client receives ORIGINAL data
         $this->assertSame(['email' => 'mario@example.com'], json_decode($resp->getContent(), true));
@@ -162,7 +162,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw     = new SanitizeResponseMiddleware($client);
         $req    = Request::create('/test', 'GET');
 
-        $mw->handle($req, fn() => $this->jsonResponse(['email' => 'mario@example.com']));
+        $mw->handle($req, fn () => $this->jsonResponse(['email' => 'mario@example.com']));
 
         // Simulate Laravel terminating phase
         $this->app->terminate();
@@ -182,7 +182,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw     = new SanitizeResponseMiddleware($client);
         $req    = Request::create('/test', 'GET');
 
-        $resp = $mw->handle($req, fn() => $this->jsonResponse(['email' => 'mario@example.com']));
+        $resp = $mw->handle($req, fn () => $this->jsonResponse(['email' => 'mario@example.com']));
 
         $this->assertSame(['email' => 'mario@example.com'], json_decode($resp->getContent(), true));
     }
@@ -195,7 +195,7 @@ class SanitizeMiddlewareTest extends TestCase
         $mw     = new SanitizeResponseMiddleware($client);
         $req    = Request::create('/test', 'GET');
 
-        $mw->handle($req, fn() => $this->jsonResponse(['email' => 'mario@example.com']));
+        $mw->handle($req, fn () => $this->jsonResponse(['email' => 'mario@example.com']));
 
         Queue::assertPushedOn('pii', AnonymizeResponseBodyJob::class);
     }
